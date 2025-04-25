@@ -1,13 +1,10 @@
-
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-import shutil
-import os
 
 app = FastAPI()
 
-# CORS ayarı
+# CORS ayarı (herkese izin veriyoruz)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -16,19 +13,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-UPLOAD_DIR = "uploaded_images"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-
 @app.post("/upload/")
 async def upload_image(user_name: str = Form(...), file: UploadFile = File(...)):
     try:
-        file_location = f"{UPLOAD_DIR}/{user_name}_face.jpg"
-        with open(file_location, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-
+        # Render sunucusunda dosya yazmaya çalışmıyoruz.
+        # Sadece yüklenen dosya ismini döndürüyoruz
         return JSONResponse(content={
-            "message": "Fotoğraf yüklendi ve işleme hazır",
-            "file_path": file_location
+            "message": "Fotoğraf yüklendi ve işleme hazır (kaydedilmedi - simülasyon).",
+            "file_name": file.filename
         })
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
